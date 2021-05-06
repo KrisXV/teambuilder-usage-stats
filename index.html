@@ -9,10 +9,23 @@
         <title>Teambuilder Usage Stats</title>
         <meta charset="UTF-8" />
         <meta name="description" content="Teambuilder usage stats" />
+        <link href="./style.css" type="text/css" rel="stylesheet" />
     </head>
     <body>
-        <textarea id="teambuilderImport"></textarea>
-        <button onclick="generateStats()">Generate teambuilder usage stats</button>
-        <div id="output"></div>
+        <h1>Teambuilder Usage Stats</h1>
+        <table>
+            <tr>
+                <td>
+                    <p>Paste teambuilder here:</p>
+                    <textarea id="teambuilderImport"></textarea>
+                    <br />
+                    <button onclick="generateStats()">Generate teambuilder usage stats</button>
+                </td>
+                <td>
+                    <span id="totalpokemon"></span>
+                    <div id="output"></div>
+                </td>
+            </tr>
+        </table>
     </body>
 </html>
