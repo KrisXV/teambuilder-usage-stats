@@ -59,7 +59,7 @@ function generateStats() {
     var withoutImg = sortedBuf.map(function (x) {
         return escapeHTML(x.species) + ': ' + x.percentage + '% | ' + x.appearances + '%';
     });
-    withoutImg.unshift('Lefend: [Pok\u00e9mon: % of all Pok\u00e9mon (' + allPokemonCount + ') | % of all teams (' + allTeams + ')]');
+    withoutImg.unshift('Legend: [Pok\u00e9mon: % of all Pok\u00e9mon (' + allPokemonCount + ') | % of all teams (' + allTeams + ')]');
     $('#copybttn').html('<button class="copy" onclick="copyText(\'' + withoutImg.join('\\n') + '\')">Copy usage stats</button>');
     $('#output').html(bufStr.join(''));
 }
