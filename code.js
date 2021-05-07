@@ -23,7 +23,7 @@ function generateStats() {
                 break;
             }
             var name = species.name;
-            if (!specieses[name]) specieses[name] = 1;
+            if (!specieses[name]) specieses[name] = 0;
             specieses[name]++;
             allPokemonCount++;
         }
