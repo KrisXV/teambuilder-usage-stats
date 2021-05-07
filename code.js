@@ -1,17 +1,40 @@
 function generateStats() {
     var text = $('#teambuilderImport').val();
+    var error = false;
+    if (!text.trim().length) {
+        error = ['noTeams'];
+    }
     var teams = PokemonTeams.importTeams(text);
     var specieses = {};
     var allPokemonCount = 0;
     var allTeams = teams.length;
     for (var i = 0; i < teams.length; i++) {
+        if (error !== false) break;
         var format = teams[i];
+        if (!format.team.length) {
+            allTeams--;
+            continue;
+        }
         for (var j = 0; j < format.team.length; j++) {
             var set = format.team[j];
-            if (!specieses[set.species]) specieses[set.species] = 1;
-            specieses[set.species]++;
+            var species = Dex.species.get(set.species);
+            if (!species.exists) {
+                error = ['nonexistentPokemon', set.species];
+                break;
+            }
+            var name = species.name;
+            if (!specieses[name]) specieses[name] = 1;
+            specieses[name]++;
             allPokemonCount++;
         }
+    }
+    if (error[0] && error[0] === 'nonexistentPokemon') {
+        $('#output').html('<p class="error">Error: ' + error[1] + ' does not exist.</p>');
+        return;
+    }
+    if (error[0] && error[0] === 'noTeams') {
+        $('#output').html('<p class="error">Error: No teams provided.</p>');
+        return;
     }
     var buf = [];
     for (var species in specieses) {
