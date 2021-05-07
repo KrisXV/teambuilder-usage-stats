@@ -57,16 +57,17 @@ function generateStats() {
     }));
     bufStr.push('</table>');
     var withoutImg = sortedBuf.map(function (x) {
-        return escapeHTML(x.species) + ': ' + x.percentage + '%';
+        return escapeHTML(x.species) + ': ' + x.percentage + '% | ' + x.appearances + '%';
     });
-    $('#copybttn').html('<button class="copy" onclick="copyText(\'' + withoutImg.join('<br />') + '\')">Copy usage stats</button>');
+    withoutImg.unshift('Lefend: [Pok\u00e9mon: % of all Pok\u00e9mon (' + allPokemonCount + ') | % of all teams (' + allTeams + ')]');
+    $('#copybttn').html('<button class="copy" onclick="copyText(\'' + withoutImg.join('\\n') + '\')">Copy usage stats</button>');
     $('#output').html(bufStr.join(''));
 }
 
 function copyText(text) {
     var $t = $('<textarea>');
     $('#output').append($t);
-    $t.val(text.replace(/<br \/>/g, '\n')).select();
+    $t.val(text.replace(/\\n/g, '\n')).select();
     document.execCommand("copy");
     $t.remove();
     alert('Copied usage stats!');
