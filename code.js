@@ -1,10 +1,11 @@
 function generateStats() {
     var text = $('#teambuilderImport').val();
-    var obj = PokemonTeams.importTeams(text);
+    var teams = PokemonTeams.importTeams(text);
     var specieses = {};
     var allPokemonCount = 0;
-    for (var i = 0; i < obj.length; i++) {
-        var format = obj[i];
+    var allTeams = teams.length;
+    for (var i = 0; i < teams.length; i++) {
+        var format = teams[i];
         for (var j = 0; j < format.team.length; j++) {
             var set = format.team[j];
             if (!specieses[set.species]) specieses[set.species] = 1;
@@ -17,19 +18,26 @@ function generateStats() {
         var spriteid = species.toLowerCase().replace(/ /g, '-').replace(/[^-a-z0-9]+/g, '');
         if (spriteid.startsWith('gourgeist')) spriteid = 'gourgeist';
         if (spriteid.startsWith('genesect')) spriteid = 'genesect';
-        buf.push({spriteurl: '<img src="https://www.smogon.com/forums//media/minisprites/' + spriteid + '.png" alt="" />', species: species, percentage: 100 * specieses[species] / allPokemonCount});
+        buf.push({
+            spriteurl: '<img src="https://www.smogon.com/forums//media/minisprites/' + spriteid + '.png" alt="' + escapeHTML(species) + '" />',
+            species: species,
+            percentage: (100 * specieses[species] / allPokemonCount).toFixed(3),
+            appearances: (100 * specieses[species] / allTeams).toFixed(3),
+        });
     }
     var sortedBuf = buf.sort(function (b, a) {
         return a.percentage - b.percentage;
     });
-    buf = sortedBuf.map(function (x) {
-        return x.spriteurl + ' <strong>' + escapeHTML(x.species) + '</strong>: ' + x.percentage.toFixed(3) + '%';
-    });
+    var bufStr = ['<table id="usage"><tr><th>Pok&eacute;mon</th><th>% of all Pok&eacute;mon (' + allPokemonCount + ')</th><th>% of all teams (' + allTeams + ')</th></tr>'];
+    bufStr = bufStr.concat(sortedBuf.map(function (x) {
+        return '<tr><td>' + x.spriteurl + ' <strong>' + escapeHTML(x.species) + '</strong></td><td>' + x.percentage + '%</td><td>' + x.appearances + '%</td></tr>';
+    }));
+    bufStr.push('</table>');
     var withoutImg = sortedBuf.map(function (x) {
-        return escapeHTML(x.species) + ': ' + x.percentage.toFixed(3) + '%';
+        return escapeHTML(x.species) + ': ' + x.percentage + '%';
     });
-    $('#totalpokemon').html('<small>(' + allPokemonCount + ' Pok&eacute;mon)</small> <button class="copy" onclick="copyText(\'' + withoutImg.join('<br />') + '\')">Copy usage stats</button>');
-    $('#output').html(buf.join('<br />'));
+    $('#copybttn').html('<button class="copy" onclick="copyText(\'' + withoutImg.join('<br />') + '\')">Copy usage stats</button>');
+    $('#output').html(bufStr.join(''));
 }
 
 function copyText(text) {
