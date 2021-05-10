@@ -5,7 +5,7 @@ function generateStats() {
         error = ['noTeams'];
     }
     var teams = PokemonTeams.importTeams(text);
-    var specieses = {};
+    var speciesNames = {};
     var allPokemonCount = 0;
     var allTeams = teams.length;
     for (var i = 0; i < teams.length; i++) {
@@ -19,33 +19,36 @@ function generateStats() {
             var set = format.team[j];
             var species = Dex.species.get(set.species);
             if (!species.exists) {
-                error = ['nonexistentPokemon', set.species];
+                error = ['nonexistentPokemon', set];
                 break;
             }
             var name = species.name;
-            if (!specieses[name]) specieses[name] = 0;
-            specieses[name]++;
+            if (!speciesNames[name]) speciesNames[name] = 0;
+            speciesNames[name]++;
             allPokemonCount++;
         }
     }
     if (error[0] && error[0] === 'nonexistentPokemon') {
-        $('#output').html('<p class="error">Error: ' + error[1] + ' does not exist.</p>');
-        return;
+        var buf = ['<p class="error">Error: Invalid Pok&eacute;mon set detected:'];
+            if (error[1]) {
+                // this is a Pokemon set
+                buf.push('<br /><br />' + PokemonSets.exportSet(error[1]).split('\n').join('<br />'))
+            }
+            buf.push('</p>')
+            $('#output').html(buf.join(''));
+            return;
     }
     if (error[0] && error[0] === 'noTeams') {
         $('#output').html('<p class="error">Error: No teams provided.</p>');
         return;
     }
     var buf = [];
-    for (var species in specieses) {
-        var spriteid = species.toLowerCase().replace(/ /g, '-').replace(/[^-a-z0-9]+/g, '');
-        if (spriteid.startsWith('gourgeist')) spriteid = 'gourgeist';
-        if (spriteid.startsWith('genesect')) spriteid = 'genesect';
+    for (var species in speciesNames) {
         buf.push({
-            spriteurl: '<img src="https://www.smogon.com/forums//media/minisprites/' + spriteid + '.png" alt="' + escapeHTML(species) + '" />',
+            spritetag: '<span style="' + PokemonIcons.getPokemon(species).style + '"></span>',
             species: species,
-            percentage: (100 * specieses[species] / allPokemonCount).toFixed(3),
-            appearances: (100 * specieses[species] / allTeams).toFixed(3),
+            percentage: (100 * speciesNames[species] / allPokemonCount).toFixed(3),
+            appearances: (100 * speciesNames[species] / allTeams).toFixed(3),
         });
     }
     var sortedBuf = buf.sort(function (b, a) {
@@ -53,7 +56,7 @@ function generateStats() {
     });
     var bufStr = ['<table id="usage"><tr><th>Pok&eacute;mon</th><th>% of all Pok&eacute;mon (' + allPokemonCount + ')</th><th>% of all teams (' + allTeams + ')</th></tr>'];
     bufStr = bufStr.concat(sortedBuf.map(function (x) {
-        return '<tr><td>' + x.spriteurl + ' <strong>' + escapeHTML(x.species) + '</strong></td><td>' + x.percentage + '%</td><td>' + x.appearances + '%</td></tr>';
+        return '<tr><td>' + x.spritetag + '<strong>' + escapeHTML(x.species) + '</strong></td><td>' + x.percentage + '%</td><td>' + x.appearances + '%</td></tr>';
     }));
     bufStr.push('</table>');
     var withoutImg = sortedBuf.map(function (x) {
